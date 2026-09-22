@@ -7,16 +7,32 @@ public class Board : MonoBehaviour
     TileColors[,] grid;
 
     public GameObject tilePrefab;
-    public
 
     void Start()
     {
-
+        
         CreateBoard();
-        PrintBoard();
+        //PrintBoard();
         CreateTiles();
 
 
+    }
+
+    void Update()
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //mouse un koordinatlarini oyun dunyasinin icindeki koordinatlarla esitliyoruz.
+            int x = Mathf.RoundToInt(mousePos.x);
+            int y = Mathf.RoundToInt(mousePos.y);
+            Debug.Log(x + "," + y);
+
+        }
+       
+        
+
+       
     }
 
     void PrintBoard()
@@ -76,6 +92,9 @@ public class Board : MonoBehaviour
             {
                 Vector2 position = new Vector2(x, y);
                 GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
+                tile.GetComponent<Tile>().x = x;
+                tile.GetComponent<Tile>().y = y;
+
                 Color color = GetColor(grid[x, y]);
                 tile.GetComponent<SpriteRenderer>().color = color;
             }
@@ -126,4 +145,6 @@ public class Board : MonoBehaviour
          //8x8 board da grid in belirledigimiz renk degisenlleriyle random doldurulmasi.
 
     }
+
+    
 }
