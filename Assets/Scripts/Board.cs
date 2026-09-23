@@ -5,6 +5,8 @@ public class Board : MonoBehaviour
     public int width = 8;
     public int height = 8;
     TileColors[,] grid;
+    Tile[,] tiles;
+    Tile selectedTile;
 
     public GameObject tilePrefab;
 
@@ -20,7 +22,7 @@ public class Board : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             //mouse un koordinatlarini oyun dunyasinin icindeki koordinatlarla esitliyoruz.
@@ -28,12 +30,25 @@ public class Board : MonoBehaviour
             int y = Mathf.RoundToInt(mousePos.y);
             Debug.Log(x + "," + y);
 
-        }
-       
+            if (x < 0 || x >= width || y < 0 || y >= height)
+            {
+                return;
+            }
+
+            if (selectedTile != null)
+            {
+                //AreNeighbors();
+            }
+            else
+            {
+                Debug.Log(selectedTile);
+            }
         
 
-       
+        } 
     }
+
+    
 
     void PrintBoard()
     {
@@ -86,17 +101,23 @@ public class Board : MonoBehaviour
 
     void CreateTiles()
     {
+        tiles = new Tile[width, height];
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 Vector2 position = new Vector2(x, y);
-                GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
-                tile.GetComponent<Tile>().x = x;
-                tile.GetComponent<Tile>().y = y;
+                GameObject tileObject = Instantiate(tilePrefab, position, Quaternion.identity);
+                Tile tile = tileObject.GetComponent<Tile>();
+                tile.x = x;
+                tile.y = y;
+
+                tiles[x, y] = tile;
+                
 
                 Color color = GetColor(grid[x, y]);
-                tile.GetComponent<SpriteRenderer>().color = color;
+                tileObject.GetComponent<SpriteRenderer>().color = color;
             }
         }
 
