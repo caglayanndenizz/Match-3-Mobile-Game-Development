@@ -7,6 +7,7 @@ public class Board : MonoBehaviour
     TileColors[,] grid;
     Tile[,] tiles;
     Tile selectedTile;
+    Tile deselectedTile;
 
     public GameObject tilePrefab;
 
@@ -35,17 +36,27 @@ public class Board : MonoBehaviour
                 return;
             }
 
-            if (selectedTile != null)
-            {
-                //AreNeighbors();
-            }
-            else
-            {
-                Debug.Log(selectedTile);
-            }
-        
 
         } 
+    }
+
+    bool AreNeighbors(Tile a , Tile b)
+    {
+        int dx = Mathf.Abs(a.x - b.x);
+        int dy = Mathf.Abs(a.y - b.y);
+        //dx veya dy nin amaci iki tasin arasindaki mesafenin ne kadar oldugunu olcmek.
+        //Eger ikisi arasindaki mesafe 1 ise komsular demek.
+        //Mathf.Abs arasindaki mesafeyi pozitife donusturuyor.
+
+        if(dx + dy == 1)
+        {
+            return true;
+
+        }
+        else
+        {
+            return false;
+        }     
     }
 
     
