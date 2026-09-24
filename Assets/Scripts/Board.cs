@@ -9,6 +9,8 @@ public class Board : MonoBehaviour
     Tile selectedTile;
     Tile deselectedTile;
 
+    Vector2 startPos;
+
     public GameObject tilePrefab;
 
     void Start()
@@ -25,39 +27,36 @@ public class Board : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            startPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             //mouse un koordinatlarini oyun dunyasinin icindeki koordinatlarla esitliyoruz.
-            int x = Mathf.RoundToInt(mousePos.x);
-            int y = Mathf.RoundToInt(mousePos.y);
+            int x = Mathf.RoundToInt(startPos.x);
+            int y = Mathf.RoundToInt(startPos.y);
             Debug.Log(x + "," + y);
 
             if (x < 0 || x >= width || y < 0 || y >= height)
             {
                 return;
             }
+            
 
-
-        } 
-    }
-
-    bool AreNeighbors(Tile a , Tile b)
-    {
-        int dx = Mathf.Abs(a.x - b.x);
-        int dy = Mathf.Abs(a.y - b.y);
-        //dx veya dy nin amaci iki tasin arasindaki mesafenin ne kadar oldugunu olcmek.
-        //Eger ikisi arasindaki mesafe 1 ise komsular demek.
-        //Mathf.Abs arasindaki mesafeyi pozitife donusturuyor.
-
-        if(dx + dy == 1)
-        {
-            return true;
+            selectedTile = tiles[x,y];
 
         }
-        else
+
+        if(Input.GetMouseButtonUp(0) && selectedTile != null)
         {
-            return false;
-        }     
+            Vector2 endPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 delta = endPos - startPos;
+
+            Debug.Log(selectedTile.x + "," + selectedTile.y + " surukleme: " + delta);
+
+            selectedTile = null;
+        }
     }
+
+
+    //deltadan yonu bulmak ve swapTiles metodu sonradan yazilacak.
+
 
     
 
