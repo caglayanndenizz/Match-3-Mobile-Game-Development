@@ -7,15 +7,13 @@ public class Board : MonoBehaviour
     TileColors[,] grid;
     Tile[,] tiles;
     Tile selectedTile;
-    Tile deselectedTile;
-
     Vector2 startPos;
 
     public GameObject tilePrefab;
 
     void Start()
     {
-        
+
         CreateBoard();
         //PrintBoard();
         CreateTiles();
@@ -37,19 +35,21 @@ public class Board : MonoBehaviour
             {
                 return;
             }
-            
 
-            selectedTile = tiles[x,y];
+
+            selectedTile = tiles[x, y];
 
         }
 
-        if(Input.GetMouseButtonUp(0) && selectedTile != null)
+        if (Input.GetMouseButtonUp(0) && selectedTile != null)
         {
             Vector2 endPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 delta = endPos - startPos;
 
-            Debug.Log(selectedTile.x + "," + selectedTile.y + " surukleme: " + delta);
-
+            if(delta.magnitude > 0.5f)
+            {
+                TrySwap(delta);
+            }
             selectedTile = null;
         }
     }
@@ -58,7 +58,7 @@ public class Board : MonoBehaviour
     //deltadan yonu bulmak ve swapTiles metodu sonradan yazilacak.
 
 
-    
+
 
     void PrintBoard()
     {
@@ -124,7 +124,7 @@ public class Board : MonoBehaviour
                 tile.y = y;
 
                 tiles[x, y] = tile;
-                
+
 
                 Color color = GetColor(grid[x, y]);
                 tileObject.GetComponent<SpriteRenderer>().color = color;
@@ -173,9 +173,46 @@ public class Board : MonoBehaviour
 
             }
         }
-         //8x8 board da grid in belirledigimiz renk degisenlleriyle random doldurulmasi.
+        //8x8 board da grid in belirledigimiz renk degisenlleriyle random doldurulmasi.
 
     }
 
-    
+    void TrySwap(Vector2 delta)
+    {
+        int TargetX = selectedTile.x;
+        int TargetY = selectedTile.y;
+
+        if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+        {
+            if (delta.x > 0)
+            {
+                TargetX++;
+            }
+            else
+            {
+                TargetX--;
+            }
+
+        }
+        else
+        {
+            if (delta.y > 0)
+            {
+                TargetY++;
+            }
+            else
+            {
+                TargetY--;
+            }
+        }
+
+        Debug.Log(TargetX + TargetY);
+
+
+
+
+
+
+    }
+
 }
