@@ -46,7 +46,7 @@ public class Board : MonoBehaviour
             Vector2 endPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 delta = endPos - startPos;
 
-            if(delta.magnitude > 0.5f)
+            if (delta.magnitude > 0.5f)
             {
                 TrySwap(delta);
             }
@@ -179,18 +179,18 @@ public class Board : MonoBehaviour
 
     void TrySwap(Vector2 delta)
     {
-        int TargetX = selectedTile.x;
-        int TargetY = selectedTile.y;
+        int targetX = selectedTile.x;
+        int targetY = selectedTile.y;
 
         if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
         {
             if (delta.x > 0)
             {
-                TargetX++;
+                targetX++;
             }
             else
             {
-                TargetX--;
+                targetX--;
             }
 
         }
@@ -198,21 +198,45 @@ public class Board : MonoBehaviour
         {
             if (delta.y > 0)
             {
-                TargetY++;
+                targetY++;
             }
             else
             {
-                TargetY--;
+                targetY--;
             }
         }
 
-        Debug.Log(TargetX + TargetY);
+        if (targetX < 0 || targetX >= width || targetY < 0 || targetY >= height)
+        {
+            return;
+        }
 
 
+        SwapTiles(selectedTile.x, selectedTile.y, targetX, targetY);
+
+    }
 
 
+    void SwapTiles(int x1, int y1, int x2, int y2)
+    {
+        TileColors tempColor = grid[x1, y1];
+        grid[x1, y1] = grid[x2, y2];
+        grid[x2, y2] = tempColor;
+
+        Tile tempTile = tiles[x1, y1];
+        tiles[x1, y1] = tiles[x2, y2];
+        tiles[x2, y2] = tempTile;
 
 
+        tiles[x1, y1].x = x1;
+        tiles[x1, y1].y = y1;
+
+        tiles[x2, y2].x = x2;
+        tiles[x2, y2].y = y2;
+
+
+        tiles[x1, y1].transform.position = new Vector2(x1,y1);
+        tiles[x2, y2].transform.position = new Vector2(x2,y2);
     }
 
 }
