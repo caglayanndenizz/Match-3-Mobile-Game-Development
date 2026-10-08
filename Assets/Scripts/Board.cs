@@ -215,8 +215,16 @@ public class Board : MonoBehaviour
 
 
         SwapTiles(selectedTile.x, selectedTile.y, targetX, targetY);
+
         matchedTiles = FindMatches();
-        DestroyMatches(matchedTiles);
+
+        while (matchedTiles.Count > 0)
+        {
+            DestroyMatches(matchedTiles);
+            DropTiles();
+            matchedTiles = FindMatches();
+        }
+        
 
     }
 
@@ -253,9 +261,16 @@ public class Board : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 TileColors color = grid[x, y];
-                if(color == TileColors.None)
+                if (color == TileColors.None)
                 {
                     continue;
+                }
+                if (x + 1 < width && y + 1 < height && grid[x + 1, y] == color && grid[x, y + 1] == color && grid[x + 1, y + 1] == color)
+                {
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x + 1, y]);
+                    matchedTiles.Add(tiles[x, y + 1]);
+                    matchedTiles.Add(tiles[x + 1, y + 1]);
                 }
                 if (x + 2 < width && grid[x + 1, y] == color && grid[x + 2, y] == color)
                 {
@@ -279,13 +294,44 @@ public class Board : MonoBehaviour
 
     }
 
-    void DestroyMatches(HashSet<Tile>matchedTiles)
+    void DestroyMatches(HashSet<Tile> matchedTiles)
     {
         foreach (Tile tile in matchedTiles)
         {
             grid[tile.x, tile.y] = TileColors.None;
             tiles[tile.x, tile.y] = null;
             Destroy(tile.gameObject);
+        }
+    }
+    
+
+    void DropTiles()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            int emptyY = 0;
+            for(int y = 0; y < height; y++)
+            {
+                if (tiles[x, y] != null)
+                {
+                    Tile tile = tiles[x, y];
+                    if (y != emptyY)
+                    {
+                        grid[x, emptyY] = grid[x, y];
+                        grid[x, y] = TileColors.None;
+
+                        tiles[x, emptyY] = tile;
+                        tiles[x, y] = null;
+
+                        tile.y = emptyY;
+
+                        tile.transform.position = new Vector2(x, emptyY);
+
+                    }
+                    emptyY++;
+                }
+            }
+
         }
     }
 
