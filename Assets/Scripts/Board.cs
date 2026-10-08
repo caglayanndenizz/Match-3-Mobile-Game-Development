@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Board : MonoBehaviour
@@ -8,6 +9,7 @@ public class Board : MonoBehaviour
     Tile[,] tiles;
     Tile selectedTile;
     Vector2 startPos;
+    HashSet<Tile> matchedTiles;
 
     public GameObject tilePrefab;
 
@@ -213,6 +215,8 @@ public class Board : MonoBehaviour
 
 
         SwapTiles(selectedTile.x, selectedTile.y, targetX, targetY);
+        matchedTiles = FindMatches();
+        DestroyMatches(matchedTiles);
 
     }
 
@@ -235,8 +239,54 @@ public class Board : MonoBehaviour
         tiles[x2, y2].y = y2;
 
 
-        tiles[x1, y1].transform.position = new Vector2(x1,y1);
-        tiles[x2, y2].transform.position = new Vector2(x2,y2);
+        tiles[x1, y1].transform.position = new Vector2(x1, y1);
+        tiles[x2, y2].transform.position = new Vector2(x2, y2);
+    }
+
+
+    HashSet<Tile> FindMatches()
+    {
+        matchedTiles = new HashSet<Tile>();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                TileColors color = grid[x, y];
+                if(color == TileColors.None)
+                {
+                    continue;
+                }
+                if (x + 2 < width && grid[x + 1, y] == color && grid[x + 2, y] == color)
+                {
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x + 1, y]);
+                    matchedTiles.Add(tiles[x + 2, y]);
+
+                }
+
+                if (y + 2 < height && grid[x, y + 1] == color && grid[x, y + 2] == color)
+                {
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x, y + 1]);
+                    matchedTiles.Add(tiles[x, y + 2]);
+
+                }
+            }
+        }
+
+        return matchedTiles;
+
+    }
+
+    void DestroyMatches(HashSet<Tile>matchedTiles)
+    {
+        foreach (Tile tile in matchedTiles)
+        {
+            grid[tile.x, tile.y] = TileColors.None;
+            tiles[tile.x, tile.y] = null;
+            Destroy(tile.gameObject);
+        }
     }
 
 }

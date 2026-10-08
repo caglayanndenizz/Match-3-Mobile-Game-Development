@@ -4,6 +4,7 @@ public enum TileColors
     Yellow,
     Green,
     Blue,
-    Purple
+    Purple,
+    None
 }
 
