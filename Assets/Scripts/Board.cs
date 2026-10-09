@@ -222,9 +222,10 @@ public class Board : MonoBehaviour
         {
             DestroyMatches(matchedTiles);
             DropTiles();
+            FillBoard();
             matchedTiles = FindMatches();
         }
-        
+
 
     }
 
@@ -303,14 +304,14 @@ public class Board : MonoBehaviour
             Destroy(tile.gameObject);
         }
     }
-    
+
 
     void DropTiles()
     {
         for (int x = 0; x < width; x++)
         {
             int emptyY = 0;
-            for(int y = 0; y < height; y++)
+            for (int y = 0; y < height; y++)
             {
                 if (tiles[x, y] != null)
                 {
@@ -334,5 +335,34 @@ public class Board : MonoBehaviour
 
         }
     }
+    
+    void SpawnTile(int x , int y)
+    {
+        Vector2 pos = new Vector2(x,y);
+        GameObject tileObject = Instantiate(tilePrefab , pos , Quaternion.identity);
+        Tile tile = tileObject.GetComponent<Tile>();
+        tile.x = x;
+        tile.y = y;
+        tiles[x,y] = tile;
+        Color color = GetColor(grid[x,y]);
+        tileObject.GetComponent<SpriteRenderer>().color = color;
+    }
+
+    void FillBoard()
+    {
+        for(int x = 0; x < width; x++)
+        {
+            for(int y = 0; y < height; y++)
+            {
+                if(tiles[x,y] == null)
+                {
+                    grid[x,y] = (TileColors)Random.Range(0,5);
+                    SpawnTile(x,y);
+                }
+            }
+        }
+    }
+
+
 
 }
