@@ -119,17 +119,7 @@ public class Board : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                Vector2 position = new Vector2(x, y);
-                GameObject tileObject = Instantiate(tilePrefab, position, Quaternion.identity);
-                Tile tile = tileObject.GetComponent<Tile>();
-                tile.x = x;
-                tile.y = y;
-
-                tiles[x, y] = tile;
-
-
-                Color color = GetColor(grid[x, y]);
-                tileObject.GetComponent<SpriteRenderer>().color = color;
+                SpawnTile(x,y);
             }
         }
 
@@ -213,10 +203,18 @@ public class Board : MonoBehaviour
             return;
         }
 
+        int startX = selectedTile.x;
+        int startY = selectedTile.y;
 
-        SwapTiles(selectedTile.x, selectedTile.y, targetX, targetY);
+        SwapTiles(startX, startY, targetX, targetY);
 
         matchedTiles = FindMatches();
+
+        if(matchedTiles.Count == 0)
+        {
+            SwapTiles(startX, startY, targetX, targetY);
+            return;
+        }
 
         while (matchedTiles.Count > 0)
         {
