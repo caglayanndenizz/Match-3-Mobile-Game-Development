@@ -6,7 +6,7 @@ public class Cup : MonoBehaviour
    public int targetCount;
    [SerializeField] private int currentCount;
 
-   public void AddTile()
+   public void AddAmount(int points)
    {
 
         if(IsFull())
@@ -14,7 +14,8 @@ public class Cup : MonoBehaviour
             return;
         }
 
-        currentCount++;
+        currentCount = Mathf.Min(targetCount , currentCount + points);
+        //currentCount un targetCount u gecmeyecek sekilde ustune points eklenerek devam etmesini sagliyoruz.
 
    }
    public bool IsFull()

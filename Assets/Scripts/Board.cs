@@ -11,6 +11,8 @@ public class Board : MonoBehaviour
     Vector2 startPos;
     HashSet<Tile> matchedTiles;
 
+    
+
     public Cup[] cup;
     public GameObject tilePrefab;
 
@@ -219,6 +221,9 @@ public class Board : MonoBehaviour
 
         while (matchedTiles.Count > 0)
         {
+            List<HashSet<Tile>> groupedTiles = GroupMatches(matchedTiles);
+            FillCups(groupedTiles);
+        
             DestroyMatches(matchedTiles);
             DropTiles();
             FillBoard();
@@ -252,7 +257,8 @@ public class Board : MonoBehaviour
     }
 
 
-    HashSet<Tile> FindMatches()
+    HashSet<Tile> FindMatches() //liste kendisine ekstra bir sey eklenmesine izin verir fakat hashset izin vermez.
+    //dolayisiyla burada buldugumuz eslesmelerdeki taslarin 2 kere patlamasini engellemis oluyoruz.
     {
         matchedTiles = new HashSet<Tile>();
 
@@ -298,20 +304,107 @@ public class Board : MonoBehaviour
     {
         foreach (Tile tile in matchedTiles)
         {
-            TileColors color = grid[tile.x , tile.y];
-
-            foreach(Cup cups in cup)
-            {
-                if(cups.color == color && !cups.IsFull()) //bardak doluysa false dondurecek , dolu degil ise true dondurecek.
-                {
-                    cups.AddTile();
-                    break;
-                }
-            }
+            
             grid[tile.x, tile.y] = TileColors.None;
             tiles[tile.x, tile.y] = null;
             Destroy(tile.gameObject);
         }
+    }
+
+    List<HashSet<Tile>> GroupMatches(HashSet<Tile> matchedTiles)
+    {
+        List<HashSet<Tile>> groups = new List<HashSet<Tile>>();
+        HashSet<Tile> visited = new HashSet<Tile>();
+
+        foreach(Tile tile in matchedTiles)
+        {
+            if(visited.Contains(tile))
+            {
+                continue;
+            }
+            Queue<Tile> queue = new Queue<Tile>();
+            HashSet<Tile> group = new HashSet<Tile>();
+
+            queue.Enqueue(tile);
+            visited.Add(tile);
+            
+            while(queue.Count > 0)
+            {
+                Tile current = queue.Dequeue();
+                group.Add(current);
+                TileColors currentColor = grid[current.x , current.y];
+
+                if(current.x + 1 < width)
+                {
+                    Tile rightNeighbor = tiles[current.x + 1 , current.y];
+                    if(rightNeighbor != null && matchedTiles.Contains(rightNeighbor) && !visited.Contains(rightNeighbor) && currentColor == grid[rightNeighbor.x , rightNeighbor.y]) 
+                    {
+                        queue.Enqueue(rightNeighbor);
+                        visited.Add(rightNeighbor);
+                    }
+                }
+                if(current.x - 1 >= 0)
+                {
+                    Tile leftNeighbor = tiles[current.x - 1 , current.y];
+                    if(leftNeighbor != null && matchedTiles.Contains(leftNeighbor) && !visited.Contains(leftNeighbor) && currentColor == grid[leftNeighbor.x , leftNeighbor.y]) 
+                    {
+                        queue.Enqueue(leftNeighbor);
+                        visited.Add(leftNeighbor);
+                    }
+                }
+                if(current.y + 1 < height)
+                {
+                    Tile upNeighbor = tiles[current.x, current.y + 1];
+                    if(upNeighbor != null && matchedTiles.Contains(upNeighbor) && !visited.Contains(upNeighbor) && currentColor == grid[upNeighbor.x , upNeighbor.y]) 
+                    {
+                        queue.Enqueue(upNeighbor);
+                        visited.Add(upNeighbor);
+                    }
+                }
+                if(current.y - 1 >= 0)
+                {
+                    Tile downNeighbor = tiles[current.x , current.y - 1];
+                    if(downNeighbor != null && matchedTiles.Contains(downNeighbor) && !visited.Contains(downNeighbor) && currentColor == grid[downNeighbor.x , downNeighbor.y]) 
+                    {
+                        queue.Enqueue(downNeighbor);
+                        visited.Add(downNeighbor);
+                    }
+                }
+
+            }
+            groups.Add(group);
+        }
+        return groups;
+
+        
+    }
+
+    void FillCups(List<HashSet<Tile>> groups)
+    {
+        foreach(HashSet<Tile> group in groups)
+        {
+            TileColors groupColor = TileColors.None;
+            foreach(Tile t in group)
+            {
+                groupColor = grid[t.x, t.y];
+                break;
+            }
+            int points = group.Count;
+            if(group.Count >= 4)
+            {
+                points++;
+            }
+            foreach(Cup cups in cup)
+            {
+                if(cups.color == groupColor && !cups.IsFull()) //bardak doluysa false dondurecek , dolu degil ise true dondurecek.
+                {
+                    cups.AddAmount(points);
+                    break;
+                }
+            }
+        }
+
+            
     }
 
 
