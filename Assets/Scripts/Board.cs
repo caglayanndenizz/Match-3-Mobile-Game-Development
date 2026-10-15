@@ -11,6 +11,7 @@ public class Board : MonoBehaviour
     Vector2 startPos;
     HashSet<Tile> matchedTiles;
 
+    public Cup[] cup;
     public GameObject tilePrefab;
 
     void Start()
@@ -126,7 +127,7 @@ public class Board : MonoBehaviour
 
     }
 
-    Color GetColor(TileColors tileColor)
+    public static Color GetColor(TileColors tileColor)
     {
         if (tileColor == TileColors.Red) return Color.red;
         if (tileColor == TileColors.Blue) return Color.blue;
@@ -297,6 +298,16 @@ public class Board : MonoBehaviour
     {
         foreach (Tile tile in matchedTiles)
         {
+            TileColors color = grid[tile.x , tile.y];
+
+            foreach(Cup cups in cup)
+            {
+                if(cups.color == color && !cups.IsFull()) //bardak doluysa false dondurecek , dolu degil ise true dondurecek.
+                {
+                    cups.AddTile();
+                    break;
+                }
+            }
             grid[tile.x, tile.y] = TileColors.None;
             tiles[tile.x, tile.y] = null;
             Destroy(tile.gameObject);

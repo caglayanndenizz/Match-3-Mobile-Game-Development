@@ -2,15 +2,26 @@ using UnityEngine;
 
 public class Cup : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+   public TileColors color;
+   public int targetCount;
+   [SerializeField] private int currentCount;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   public void AddTile()
+   {
+
+        if(IsFull())
+        {
+            return;
+        }
+
+        currentCount++;
+
+   }
+   public bool IsFull()
+   {
+        return currentCount >= targetCount;
+   }
+
+
+   
 }
