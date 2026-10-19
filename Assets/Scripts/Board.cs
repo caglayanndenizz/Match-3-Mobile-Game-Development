@@ -12,7 +12,7 @@ public class Board : MonoBehaviour
     HashSet<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
-
+    public GameManager gameManager;
     
 
     public Cup[] cup;
@@ -28,32 +28,36 @@ public class Board : MonoBehaviour
     }
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if(gameManager.isGameOver == false)
         {
-            startPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //mouse un koordinatlarini oyun dunyasinin icindeki koordinatlarla esitliyoruz.
-            int x = Mathf.RoundToInt(startPos.x);
-            int y = Mathf.RoundToInt(startPos.y);
-            Debug.Log(x + "," + y);
-
-            if (x < 0 || x >= width || y < 0 || y >= height)
+            if (Input.GetMouseButtonDown(0))
             {
-                return;
+                startPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                //mouse un koordinatlarini oyun dunyasinin icindeki koordinatlarla esitliyoruz.
+                int x = Mathf.RoundToInt(startPos.x);
+                int y = Mathf.RoundToInt(startPos.y);
+                Debug.Log(x + "," + y);
+
+                if (x < 0 || x >= width || y < 0 || y >= height)
+                {
+                    return;
+                }
+                selectedTile = tiles[x, y];
             }
-            selectedTile = tiles[x, y];
-        }
 
-        if (Input.GetMouseButtonUp(0) && selectedTile != null)
-        {
-            Vector2 endPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 delta = endPos - startPos;
-
-            if (delta.magnitude > 0.5f)
+            if (Input.GetMouseButtonUp(0) && selectedTile != null)
             {
-                TrySwap(delta);
+                Vector2 endPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 delta = endPos - startPos;
+
+                if (delta.magnitude > 0.5f)
+                {
+                    TrySwap(delta);
+                }
+                selectedTile = null;
             }
-            selectedTile = null;
         }
+        
     }
     void CreateBoard()
     {
@@ -203,6 +207,7 @@ public class Board : MonoBehaviour
             SwapTiles(startX, startY, targetX, targetY);
             return;
         }
+        gameManager.MakeMove();
 
         while (matchedTiles.Count > 0)
         {
@@ -214,6 +219,7 @@ public class Board : MonoBehaviour
             FillBoard();
             matchedTiles = FindMatches();
         }
+        gameManager.GameOver();
     }
 
     void SwapTiles(int x1, int y1, int x2, int y2)
@@ -276,18 +282,22 @@ public class Board : MonoBehaviour
                 }
             }
         }
-
+        
         return matchedTiles;
+
     }
 
     void DestroyMatches(HashSet<Tile> matchedTiles)
     {
+        
         foreach (Tile tile in matchedTiles)
         {
             
             grid[tile.x, tile.y] = TileColors.None;
             tiles[tile.x, tile.y] = null;
             Destroy(tile.gameObject);
+            
+
         }
     }
 
@@ -370,7 +380,10 @@ public class Board : MonoBehaviour
             if(group.Count >= 4)
             {
                 points++;
+                
             }
+            gameManager.AddAmount(points * 10);
+            
             foreach(Cup cups in cup)
             {
                 if(cups.color == groupColor && !cups.IsFull()) //bardak doluysa false dondurecek , dolu degil ise true dondurecek.
@@ -379,6 +392,7 @@ public class Board : MonoBehaviour
                     break;
                 }
             }
+            
         }     
     }
 
