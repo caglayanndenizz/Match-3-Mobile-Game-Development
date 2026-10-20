@@ -200,9 +200,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120b3bb2e255d49b2a1aa5ff2c5983ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  maxMoveCount: 10
+  maxMoveCount: 2147483647
   remainingMoveCount: 0
-  targetPoint: 400
+  targetPoint: 100000
   currentPoint: 0
   isGameOver: 0
 --- !u!4 &693868993
