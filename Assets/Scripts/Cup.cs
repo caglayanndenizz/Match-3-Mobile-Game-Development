@@ -5,6 +5,7 @@ public class Cup : MonoBehaviour
    public TileColors color;
    public int targetCount;
    [SerializeField] private int currentCount;
+   public CupObjective objective;
 
    public void AddAmount(int points)
    {

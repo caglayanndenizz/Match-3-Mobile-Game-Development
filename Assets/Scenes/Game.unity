@@ -326,6 +326,7 @@ MonoBehaviour:
   color: 0
   targetCount: 3
   currentCount: 0
+  objective: 0
 --- !u!1 &1887315089
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,6 +497,7 @@ MonoBehaviour:
   color: 3
   targetCount: 100
   currentCount: 0
+  objective: 1
 --- !u!212 &1911435441
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -602,6 +604,7 @@ MonoBehaviour:
   color: 4
   targetCount: 3
   currentCount: 0
+  objective: 0
 --- !u!212 &2093728797
 SpriteRenderer:
   m_ObjectHideFlags: 0
