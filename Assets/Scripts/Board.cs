@@ -376,22 +376,16 @@ public class Board : MonoBehaviour
                 groupColor = grid[t.x, t.y];
                 break;
             }
-            int points = group.Count;
-            if(group.Count >= 4)
-            {
-                points++;
-                
-            }
-            gameManager.AddAmount(points * 10);
             
             foreach(Cup cups in cup)
             {
-                if(cups.color == groupColor && !cups.IsFull()) //bardak doluysa false dondurecek , dolu degil ise true dondurecek.
+                if(group.Count >= 4 && !cups.IsFull()) // gruplanan matchlerde patlayan tas sayisi 4 den fazlaysa ve kap full degilse
                 {
-                    cups.AddAmount(points);
+                    cups.AddAmount(1);
                     break;
                 }
             }
+            gameManager.ApplyPoints(group.Count , groupColor);
             
         }     
     }
