@@ -7,8 +7,9 @@ public class Board : MonoBehaviour
     public int height = 8;
     TileColors[,] grid; //taslarin rengini tutar.
     Tile[,] tiles; //tas objelerini tutar.
-    Tile selectedTile; //secilen tasin konumunu tutar.
-    Vector2 startPos; //uzaydaki konumu mouse a esitlemek icin bu degisken.
+    Tile selectedTile; //secilen tasin kendisini tutar.
+    Vector2 startPos; //mouse un basildigi andaki dunya konumu.
+    //Tryswap metodunda delta ile kaydirma yonu hesaplanir.
     HashSet<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
@@ -70,13 +71,14 @@ public class Board : MonoBehaviour
                 TileColors color;
                 //hucreler icerisinde renkleri kontrol etmemiz gerektigi icin en ic
                 //dongude tanimladik ve bu sekilde yazdirdik.
+                //Eger do nun disinda tanimlanmasaydi while kosulu bunu goremeyecekti.
                 do
                 {
                     color = (TileColors)Random.Range(0, 5);
-                    //=> Enum'i type casting ile int e cevirdik.
+                    //=> Int i enum a cevirdik type casting ile.
                     //int sayi = (int)TileColor.Green; ==> 2
                     //8x8 board da grid in belirledigimiz renk degisenlleriyle random doldurulmasi.
-
+                    // 5 dahil olmayacagi icin none i goremeyecek. 
                 }
                 while (MakesMatch(x, y, color));
                 //board ilk yazildiginda herhangi bir eslesme olmayacak sekilde tasarlandi.
@@ -88,7 +90,7 @@ public class Board : MonoBehaviour
     }
     bool MakesMatch(int x, int y, TileColors color)
     {
-        if (x >= 2)
+        if (x >= 2) 
         {
             TileColors left1 = grid[x - 1, y];
             TileColors left2 = grid[x - 2, y];
@@ -102,6 +104,7 @@ public class Board : MonoBehaviour
         //eger solundaki iki eleman da boardun icerisinde ve ayni renkteyse match = true;
 
         if (y >= 2)
+        // asagisindaki iki tas da ayni renkteyse true donecek.
         {
             TileColors down1 = grid[x, y - 1];
             TileColors down2 = grid[x, y - 2];
@@ -112,7 +115,8 @@ public class Board : MonoBehaviour
             }
         }
 
-        if(x >= 1 && y >= 1)
+
+        if(x >= 1 && y >= 1) // sol , alt ve sol alt capraz ayni renkteyse 2x2 eslesme yakalanir.
         {
             TileColors left = grid[x - 1 , y];
             TileColors down = grid[x , y - 1];
@@ -132,6 +136,8 @@ public class Board : MonoBehaviour
     {
         tiles = new Tile[width, height];
 
+        //8x8 bos bir grid aciliyor. Tas yaratmiyor sadece veri olarak tutuluyor.
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -139,6 +145,7 @@ public class Board : MonoBehaviour
                 SpawnTile(x,y);
             }
         }
+        //hicbir tas komsusuna bakmadigi icin buradaki sira onemsiz.
     }
     
     void SpawnTile(int x , int y)
@@ -224,6 +231,10 @@ public class Board : MonoBehaviour
 
     void SwapTiles(int x1, int y1, int x2, int y2)
     {
+        //once temp color ve temp tile olusturuyor. Eger olusturmasaydi kaydirilan tasin rengi kaybolurdu.
+        // yer degistirme icin once temp olusturuyor diyelim ki kirmizi
+        // daha sonra ilk yerde olan kirmiziyi diger yerde olan maviyle degistiriyor.
+        // mavi olan tempcolor a geciyor. Digeri mavi oluyor.
         TileColors tempColor = grid[x1, y1];
         grid[x1, y1] = grid[x2, y2];
         grid[x2, y2] = tempColor;
