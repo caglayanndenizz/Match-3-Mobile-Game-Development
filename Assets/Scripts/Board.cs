@@ -14,9 +14,6 @@ public class Board : MonoBehaviour
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
     public GameManager gameManager;
-    
-
-    public Cup[] cup;
     public GameObject tilePrefab;
 
     void Start()
@@ -218,9 +215,6 @@ public class Board : MonoBehaviour
 
         while (matchedTiles.Count > 0)
         {
-            List<HashSet<Tile>> groupedTiles = GroupMatches(matchedTiles);
-            FillCups(groupedTiles);
-        
             DestroyMatches(matchedTiles);
             DropTiles();
             FillBoard();
@@ -312,96 +306,6 @@ public class Board : MonoBehaviour
         }
     }
 
-    List<HashSet<Tile>> GroupMatches(HashSet<Tile> matchedTiles)
-    {
-        List<HashSet<Tile>> groups = new List<HashSet<Tile>>();
-        HashSet<Tile> visited = new HashSet<Tile>();
-
-        foreach(Tile tile in matchedTiles)
-        {
-            if(visited.Contains(tile))
-            {
-                continue;
-            }
-            Queue<Tile> queue = new Queue<Tile>();
-            HashSet<Tile> group = new HashSet<Tile>();
-
-            queue.Enqueue(tile);
-            visited.Add(tile);
-            
-            while(queue.Count > 0)
-            {
-                Tile current = queue.Dequeue();
-                group.Add(current);
-                TileColors currentColor = grid[current.x , current.y];
-
-                if(current.x + 1 < width)
-                {
-                    Tile rightNeighbor = tiles[current.x + 1 , current.y];
-                    if(rightNeighbor != null && matchedTiles.Contains(rightNeighbor) && !visited.Contains(rightNeighbor) && currentColor == grid[rightNeighbor.x , rightNeighbor.y]) 
-                    {
-                        queue.Enqueue(rightNeighbor);
-                        visited.Add(rightNeighbor);
-                    }
-                }
-                if(current.x - 1 >= 0)
-                {
-                    Tile leftNeighbor = tiles[current.x - 1 , current.y];
-                    if(leftNeighbor != null && matchedTiles.Contains(leftNeighbor) && !visited.Contains(leftNeighbor) && currentColor == grid[leftNeighbor.x , leftNeighbor.y]) 
-                    {
-                        queue.Enqueue(leftNeighbor);
-                        visited.Add(leftNeighbor);
-                    }
-                }
-                if(current.y + 1 < height)
-                {
-                    Tile upNeighbor = tiles[current.x, current.y + 1];
-                    if(upNeighbor != null && matchedTiles.Contains(upNeighbor) && !visited.Contains(upNeighbor) && currentColor == grid[upNeighbor.x , upNeighbor.y]) 
-                    {
-                        queue.Enqueue(upNeighbor);
-                        visited.Add(upNeighbor);
-                    }
-                }
-                if(current.y - 1 >= 0)
-                {
-                    Tile downNeighbor = tiles[current.x , current.y - 1];
-                    if(downNeighbor != null && matchedTiles.Contains(downNeighbor) && !visited.Contains(downNeighbor) && currentColor == grid[downNeighbor.x , downNeighbor.y]) 
-                    {
-                        queue.Enqueue(downNeighbor);
-                        visited.Add(downNeighbor);
-                    }
-                }
-            }
-            groups.Add(group);
-        }
-        return groups; 
-    }
-
-    void FillCups(List<HashSet<Tile>> groups)
-    {
-        foreach(HashSet<Tile> group in groups)
-        {
-            TileColors groupColor = TileColors.None;
-            foreach(Tile t in group)
-            {
-                groupColor = grid[t.x, t.y];
-                break;
-            }
-            
-            foreach(Cup cups in cup)
-            {
-                if(group.Count >= 4 && !cups.IsFull()) // gruplanan matchlerde patlayan tas sayisi 4 den fazlaysa ve kap full degilse
-                {
-                    cups.AddAmount(1);
-                    break;
-                }
-            }
-            gameManager.ApplyPoints(group.Count , groupColor);
-            
-        }     
-    }
-
-
     void DropTiles()
     {
         for (int x = 0; x < width; x++)
@@ -430,8 +334,6 @@ public class Board : MonoBehaviour
             }
         }
     }
-    
-    
 
     void FillBoard()
     {
@@ -446,5 +348,11 @@ public class Board : MonoBehaviour
                 }
             }
         }
+    }
+
+
+    void ScoreGroups(int amount)
+    {
+        gameManager.ApplyPoints(amount);
     }
 }

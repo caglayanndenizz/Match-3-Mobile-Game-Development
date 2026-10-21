@@ -9,12 +9,11 @@ public class GameManager : MonoBehaviour
     public int currentPoint;
     public bool isGameOver = false;
 
-    List<AugmentType> activeAugments = new List<AugmentType>();
 
     void Start()
     {
         remainingMoveCount = maxMoveCount;
-        ApplyAugment(AugmentType.RedBonus);
+        
     }
 
 
@@ -49,33 +48,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ApplyAugment(AugmentType type)
-    {
-        activeAugments.Add(type);
-    }
 
-
-    public void ApplyPoints(int amount , TileColors color)
+    public void ApplyPoints(int groupSize)
     {
-        int points = amount;
-        if(amount >= 4)
+        int points = groupSize;
+        if(groupSize >= 4)
         {
             points++;
         }
-
-        if(color == TileColors.Red && activeAugments.Contains(AugmentType.RedBonus))
-        {
-            points += amount;
-        }
-        if(color == TileColors.Blue && activeAugments.Contains(AugmentType.BlueBonus))
-        {
-            points += amount;
-        }
-        if(color == TileColors.Purple && activeAugments.Contains(AugmentType.PurpleBonus))
-        {
-            points += amount;
-        }
-
         AddAmount(points * 10);
     }
 }
