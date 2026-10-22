@@ -151,10 +151,6 @@ MonoBehaviour:
   width: 8
   height: 8
   gameManager: {fileID: 693868992}
-  cup:
-  - {fileID: 1529142705}
-  - {fileID: 1911435440}
-  - {fileID: 2093728796}
   tilePrefab: {fileID: 1841783350575146933, guid: f79b056d520744f028ddff50cc5cd348, type: 3}
 --- !u!4 &628061409
 Transform:
@@ -327,6 +323,37 @@ MonoBehaviour:
   targetCount: 3
   currentCount: 0
   objective: 0
+--- !u!1 &1745721160
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1745721161}
+  m_Layer: 0
+  m_Name: asdasdasd
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1745721161
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745721160}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.83843, y: 4.7104, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1887315089
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,3 +715,4 @@ SceneRoots:
   - {fileID: 1911435442}
   - {fileID: 2093728798}
   - {fileID: 693868993}
+  - {fileID: 1745721161}
