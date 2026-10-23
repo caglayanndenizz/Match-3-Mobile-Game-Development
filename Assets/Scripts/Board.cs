@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
+using System.Collections;
 
 public class Board : MonoBehaviour
 {
@@ -10,11 +12,15 @@ public class Board : MonoBehaviour
     Tile selectedTile; //secilen tasin kendisini tutar.
     Vector2 startPos; //mouse un basildigi andaki dunya konumu.
     //Tryswap metodunda delta ile kaydirma yonu hesaplanir.
-    HashSet<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
+    List<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
     public GameManager gameManager;
     public GameObject tilePrefab;
+    public float dropDuration = 0.3f;
+
+    public bool isAnimating = false;
+    
 
     void Start()
     {
@@ -50,7 +56,7 @@ public class Board : MonoBehaviour
 
                 if (delta.magnitude > 0.5f)
                 {
-                    TrySwap(delta);
+                    StartCoroutine(TrySwap(delta));
                 }
                 selectedTile = null;
             }
@@ -166,7 +172,7 @@ public class Board : MonoBehaviour
 
         return Color.white;
     }
-    void TrySwap(Vector2 delta)
+    IEnumerator TrySwap(Vector2 delta)
     {
         int targetX = selectedTile.x;
         int targetY = selectedTile.y;
@@ -196,7 +202,7 @@ public class Board : MonoBehaviour
 
         if (targetX < 0 || targetX >= width || targetY < 0 || targetY >= height)
         {
-            return;
+            yield break;
         }
 
         int startX = selectedTile.x;
@@ -209,14 +215,17 @@ public class Board : MonoBehaviour
         if(matchedTiles.Count == 0)
         {
             SwapTiles(startX, startY, targetX, targetY);
-            return;
+            yield break;
         }
         gameManager.MakeMove();
 
         while (matchedTiles.Count > 0)
         {
             DestroyMatches(matchedTiles);
+            IncreasePoints(matchedTiles.Count);
+            gameManager.UpdatePoints();
             DropTiles();
+            yield return new WaitForSeconds(dropDuration);
             FillBoard();
             matchedTiles = FindMatches();
         }
@@ -249,10 +258,10 @@ public class Board : MonoBehaviour
         tiles[x2, y2].transform.position = new Vector2(x2, y2);
     }
 
-    HashSet<Tile> FindMatches() //liste kendisine ekstra bir sey eklenmesine izin verir fakat hashset izin vermez.
+    List<Tile> FindMatches() //liste kendisine ekstra bir sey eklenmesine izin verir fakat hashset izin vermez.
     //dolayisiyla burada buldugumuz eslesmelerdeki taslarin 2 kere patlamasini engellemis oluyoruz.
     {
-        matchedTiles = new HashSet<Tile>();
+        matchedTiles = new List<Tile>();
 
         for (int x = 0; x < width; x++)
         {
@@ -292,7 +301,7 @@ public class Board : MonoBehaviour
 
     }
 
-    void DestroyMatches(HashSet<Tile> matchedTiles)
+    void DestroyMatches(List<Tile> matchedTiles)
     {
         
         foreach (Tile tile in matchedTiles)
@@ -326,7 +335,7 @@ public class Board : MonoBehaviour
 
                         tile.y = emptyY;
 
-                        tile.transform.position = new Vector2(x, emptyY);
+                        tile.transform.DOMove(new Vector2(x, emptyY), dropDuration);
 
                     }
                     emptyY++;
@@ -351,8 +360,8 @@ public class Board : MonoBehaviour
     }
 
 
-    void ScoreGroups(int amount)
+    void IncreasePoints(int amount)
     {
-        gameManager.ApplyPoints(amount);
+        gameManager.ApplyPoints(amount);  
     }
 }

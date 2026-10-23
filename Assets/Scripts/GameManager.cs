@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,19 +9,20 @@ public class GameManager : MonoBehaviour
     public int targetPoint;
     public int currentPoint;
     public bool isGameOver = false;
+    public TextMeshProUGUI pointsText;
 
 
     void Start()
     {
         remainingMoveCount = maxMoveCount;
-        
     }
 
 
-    public void AddAmount(int points)
+    void AddAmount(int points)
    {
 
         currentPoint = Mathf.Min(targetPoint , currentPoint + points);
+        //UpdatePoints();
    }
 
     public void MakeMove()
@@ -58,4 +60,10 @@ public class GameManager : MonoBehaviour
         }
         AddAmount(points * 10);
     }
+
+    public void UpdatePoints()
+    {
+        pointsText.text = currentPoint.ToString();
+    }
+
 }
