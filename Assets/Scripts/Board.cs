@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using System.Collections;
+using NUnit.Framework;
 
 public class Board : MonoBehaviour
 {
@@ -12,27 +12,30 @@ public class Board : MonoBehaviour
     Tile selectedTile; //secilen tasin kendisini tutar.
     Vector2 startPos; //mouse un basildigi andaki dunya konumu.
     //Tryswap metodunda delta ile kaydirma yonu hesaplanir.
-    List<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
+    HashSet<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
     public GameManager gameManager;
     public GameObject tilePrefab;
     public float dropDuration = 0.3f;
+    public float rowDelay = 0.05f;
 
     public bool isAnimating = false;
     
 
-    void Start()
+    IEnumerator Start()
     {
+        isAnimating = true;
         CreateBoard(); // renkleri olusturuyor.
         CreateTiles(); // renklere gore tas olusturuyor.
-        
+        yield return new WaitForSeconds(dropDuration);
+        isAnimating = false;
         //CreateTiles() metodu, CreateBoard() methodunun icerisinde yazan gride gore kuruyor gridi.
         //yani eger createtiles ilk basa konsaydi grid = null olacagi icin null reference exception hatasi gelecekti.
     }
     void Update()
     {
-        if(gameManager.isGameOver == false)
+        if(gameManager.isGameOver == false && !isAnimating)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -146,6 +149,8 @@ public class Board : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 SpawnTile(x,y);
+                tiles[x,y].transform.position = new Vector2(x, y + height);
+                tiles[x,y].MoveTo(new Vector2(x,y),dropDuration, y * rowDelay);
             }
         }
         //hicbir tas komsusuna bakmadigi icin buradaki sira onemsiz.
@@ -218,6 +223,7 @@ public class Board : MonoBehaviour
             yield break;
         }
         gameManager.MakeMove();
+        isAnimating = true;
 
         while (matchedTiles.Count > 0)
         {
@@ -230,6 +236,7 @@ public class Board : MonoBehaviour
             matchedTiles = FindMatches();
         }
         gameManager.GameOver();
+        isAnimating = false;
     }
 
     void SwapTiles(int x1, int y1, int x2, int y2)
@@ -258,10 +265,10 @@ public class Board : MonoBehaviour
         tiles[x2, y2].transform.position = new Vector2(x2, y2);
     }
 
-    List<Tile> FindMatches() //liste kendisine ekstra bir sey eklenmesine izin verir fakat hashset izin vermez.
+    HashSet<Tile> FindMatches() //liste kendisine ekstra bir sey eklenmesine izin verir fakat hashset izin vermez.
     //dolayisiyla burada buldugumuz eslesmelerdeki taslarin 2 kere patlamasini engellemis oluyoruz.
     {
-        matchedTiles = new List<Tile>();
+        matchedTiles = new HashSet<Tile>();
 
         for (int x = 0; x < width; x++)
         {
@@ -301,7 +308,7 @@ public class Board : MonoBehaviour
 
     }
 
-    void DestroyMatches(List<Tile> matchedTiles)
+    void DestroyMatches(HashSet<Tile> matchedTiles)
     {
         
         foreach (Tile tile in matchedTiles)
@@ -335,7 +342,8 @@ public class Board : MonoBehaviour
 
                         tile.y = emptyY;
 
-                        tile.transform.DOMove(new Vector2(x, emptyY), dropDuration);
+                        tile.MoveTo(new Vector2(x, emptyY), dropDuration , 0);
+
 
                     }
                     emptyY++;
