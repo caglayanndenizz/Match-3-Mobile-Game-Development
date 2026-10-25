@@ -27,7 +27,7 @@ public class Board : MonoBehaviour
     {
         isAnimating = true;
         CreateBoard(); // renkleri olusturuyor.
-        CreateTiles(); // renklere gore tas olusturuyor.
+        yield return StartCoroutine(CreateTiles()); // renklere gore tas olusturuyor.
         yield return new WaitForSeconds(dropDuration);
         isAnimating = false;
         //CreateTiles() metodu, CreateBoard() methodunun icerisinde yazan gride gore kuruyor gridi.
@@ -138,20 +138,22 @@ public class Board : MonoBehaviour
         return false;
         //eger ikisi de yoksa false i cak.
     }
-     void CreateTiles()
+    IEnumerator CreateTiles()
     {
         tiles = new Tile[width, height];
 
         //8x8 bos bir grid aciliyor. Tas yaratmiyor sadece veri olarak tutuluyor.
 
-        for (int x = 0; x < width; x++)
+        for (int y = 0; y < height; y++)
         {
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
                 SpawnTile(x,y);
                 tiles[x,y].transform.position = new Vector2(x, y + height);
-                tiles[x,y].MoveTo(new Vector2(x,y),dropDuration, y * rowDelay);
+                tiles[x,y].MoveTo(new Vector2(x,y),dropDuration, 0);
             }
+            yield return new WaitForSeconds(rowDelay * 3);
+
         }
         //hicbir tas komsusuna bakmadigi icin buradaki sira onemsiz.
     }

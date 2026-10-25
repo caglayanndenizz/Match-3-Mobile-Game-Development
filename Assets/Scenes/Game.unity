@@ -334,6 +334,7 @@ MonoBehaviour:
   gameManager: {fileID: 693868992}
   tilePrefab: {fileID: 1841783350575146933, guid: f79b056d520744f028ddff50cc5cd348, type: 3}
   dropDuration: 0.3
+  rowDelay: 0.05
   isAnimating: 0
 --- !u!4 &628061409
 Transform:
@@ -617,8 +618,8 @@ Camera:
   m_GameObject: {fileID: 1887315089}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
