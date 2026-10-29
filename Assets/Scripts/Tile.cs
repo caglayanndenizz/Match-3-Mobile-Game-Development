@@ -12,6 +12,12 @@ public class Tile : MonoBehaviour
 
     public void MoveTo(Vector2 destination , float duration, float delay)
     {
+        transform.DOKill();
         transform.DOMove(destination, duration).SetDelay(delay);
+    }
+
+    void OnDestroy()
+    {
+        transform.DOKill();
     }
 }

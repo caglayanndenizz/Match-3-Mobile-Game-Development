@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using NUnit.Framework;
-
 public class Board : MonoBehaviour
 {
     public int width = 8;
@@ -18,6 +16,7 @@ public class Board : MonoBehaviour
     public GameManager gameManager;
     public GameObject tilePrefab;
     public float dropDuration = 0.3f;
+    public float swapDuration = 0.2f;
     public float rowDelay = 0.05f;
 
     public bool isAnimating = false;
@@ -43,7 +42,6 @@ public class Board : MonoBehaviour
                 //mouse un koordinatlarini oyun dunyasinin icindeki koordinatlarla esitliyoruz.
                 int x = Mathf.RoundToInt(startPos.x);
                 int y = Mathf.RoundToInt(startPos.y);
-                Debug.Log(x + "," + y);
 
                 if (x < 0 || x >= width || y < 0 || y >= height)
                 {
@@ -212,36 +210,43 @@ public class Board : MonoBehaviour
             yield break;
         }
 
+
         int startX = selectedTile.x;
         int startY = selectedTile.y;
+        isAnimating = true;
 
-        SwapTiles(startX, startY, targetX, targetY);
+        yield return StartCoroutine(SwapTiles(startX, startY, targetX, targetY));
 
         matchedTiles = FindMatches();
 
         if(matchedTiles.Count == 0)
         {
-            SwapTiles(startX, startY, targetX, targetY);
+            yield return StartCoroutine(SwapTiles(startX, startY, targetX, targetY));
+            isAnimating = false;
             yield break;
         }
         gameManager.MakeMove();
-        isAnimating = true;
+        
 
         while (matchedTiles.Count > 0)
         {
             DestroyMatches(matchedTiles);
             IncreasePoints(matchedTiles.Count);
             gameManager.UpdatePoints();
+
+
             DropTiles();
             yield return new WaitForSeconds(dropDuration);
             FillBoard();
+            yield return new WaitForSeconds(dropDuration);
+
             matchedTiles = FindMatches();
         }
         gameManager.GameOver();
         isAnimating = false;
     }
 
-    void SwapTiles(int x1, int y1, int x2, int y2)
+    IEnumerator SwapTiles(int x1, int y1, int x2, int y2)
     {
         //once temp color ve temp tile olusturuyor. Eger olusturmasaydi kaydirilan tasin rengi kaybolurdu.
         // yer degistirme icin once temp olusturuyor diyelim ki kirmizi
@@ -263,8 +268,9 @@ public class Board : MonoBehaviour
         tiles[x2, y2].y = y2;
 
 
-        tiles[x1, y1].transform.position = new Vector2(x1, y1);
-        tiles[x2, y2].transform.position = new Vector2(x2, y2);
+        tiles[x1, y1].MoveTo(new Vector2(x1,y1), swapDuration, 0);
+        tiles[x2, y2].MoveTo(new Vector2(x2,y2), swapDuration, 0);
+        yield return new WaitForSeconds(swapDuration);
     }
 
     HashSet<Tile> FindMatches() //liste kendisine ekstra bir sey eklenmesine izin verir fakat hashset izin vermez.
@@ -358,12 +364,19 @@ public class Board : MonoBehaviour
     {
         for(int x = 0; x < width; x++)
         {
+            int emptyCount = 0;
+            for(int y = 0; y < height; y++)
+            {
+                if(tiles[x,y] == null) emptyCount++;
+            }
             for(int y = 0; y < height; y++)
             {
                 if(tiles[x,y] == null)
                 {
                     grid[x,y] = (TileColors)Random.Range(0,5);
                     SpawnTile(x,y);
+                    tiles[x,y].transform.position = new Vector2(x,y + emptyCount);
+                    tiles[x,y].MoveTo(new Vector2(x,y) , dropDuration , 0f);
                 }
             }
         }
