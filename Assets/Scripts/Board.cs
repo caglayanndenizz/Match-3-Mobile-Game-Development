@@ -13,8 +13,10 @@ public class Board : MonoBehaviour
     HashSet<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
+    List<Vector2Int> propellerPositions;
     public GameManager gameManager;
     public GameObject tilePrefab;
+    public GameObject propellerPrefab;
     public float dropDuration = 0.3f;
     public float swapDuration = 0.2f;
     public float rowDelay = 0.05f;
@@ -231,6 +233,10 @@ public class Board : MonoBehaviour
         while (matchedTiles.Count > 0)
         {
             DestroyMatches(matchedTiles);
+            foreach(Vector2Int pos in propellerPositions)
+            {
+                SpawnPropeller(pos.x , pos.y);
+            }
             IncreasePoints(matchedTiles.Count);
             gameManager.UpdatePoints();
 
@@ -277,6 +283,7 @@ public class Board : MonoBehaviour
     //dolayisiyla burada buldugumuz eslesmelerdeki taslarin 2 kere patlamasini engellemis oluyoruz.
     {
         matchedTiles = new HashSet<Tile>();
+        propellerPositions = new List<Vector2Int>();
 
         for (int x = 0; x < width; x++)
         {
@@ -293,6 +300,8 @@ public class Board : MonoBehaviour
                     matchedTiles.Add(tiles[x + 1, y]);
                     matchedTiles.Add(tiles[x, y + 1]);
                     matchedTiles.Add(tiles[x + 1, y + 1]);
+
+                    propellerPositions.Add(new Vector2Int(x,y));
                 }
                 if (x + 2 < width && grid[x + 1, y] == color && grid[x + 2, y] == color)
                 {
@@ -386,5 +395,17 @@ public class Board : MonoBehaviour
     void IncreasePoints(int amount)
     {
         gameManager.ApplyPoints(amount);  
+    }
+
+
+    void SpawnPropeller(int x , int y)
+    {
+        Vector2 pos = new Vector2(x,y);
+        GameObject propellerObject = Instantiate(propellerPrefab , pos , Quaternion.identity);
+        Tile propeller = propellerObject.GetComponent<Tile>();
+        propeller.x = x;
+        propeller.y = y;
+        tiles[x,y] = propeller;
+        grid[x,y] = TileColors.None;
     }
 }
