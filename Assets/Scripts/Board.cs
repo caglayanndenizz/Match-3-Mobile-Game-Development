@@ -63,6 +63,8 @@ public class Board : MonoBehaviour
                 }
                 selectedTile = null;
             }
+
+            //propeller icin dokununca skill ini gosterme mekanigi.
         }
         
     }
@@ -330,12 +332,9 @@ public class Board : MonoBehaviour
         
         foreach (Tile tile in matchedTiles)
         {
-            
             grid[tile.x, tile.y] = TileColors.None;
             tiles[tile.x, tile.y] = null;
             Destroy(tile.gameObject);
-            
-
         }
     }
 
@@ -407,5 +406,10 @@ public class Board : MonoBehaviour
         propeller.y = y;
         tiles[x,y] = propeller;
         grid[x,y] = TileColors.None;
+    }
+
+    public TileColors GetColorAt(int x , int y)
+    {
+        return grid[x,y];
     }
 }
