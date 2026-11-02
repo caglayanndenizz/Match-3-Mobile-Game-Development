@@ -23,6 +23,7 @@ public class Board : MonoBehaviour
 
     public bool isAnimating = false;
     
+    
 
     IEnumerator Start()
     {
@@ -56,7 +57,6 @@ public class Board : MonoBehaviour
             {
                 Vector2 endPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector2 delta = endPos - startPos;
-
                 if (delta.magnitude > 0.5f)
                 {
                     StartCoroutine(TrySwap(delta));
