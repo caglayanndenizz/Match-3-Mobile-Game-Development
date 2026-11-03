@@ -138,7 +138,7 @@ public class Board : MonoBehaviour
         //eger asagisindaki/yukarisindaki eleman board un icerisinde ve ayni renkteyse match = true;
         
         return false;
-        //eger ikisi de yoksa false i cak.
+        //eger ucu de yoksa false i cak.
     }
     IEnumerator CreateTiles()
     {
@@ -229,9 +229,7 @@ public class Board : MonoBehaviour
             isAnimating = false;
             yield break;
         }
-        gameManager.MakeMove();
         
-
         while (matchedTiles.Count > 0)
         {
             DestroyMatches(matchedTiles);
@@ -241,6 +239,7 @@ public class Board : MonoBehaviour
             }
             IncreasePoints(matchedTiles.Count);
             gameManager.UpdatePoints();
+            gameManager.MakeMove();
 
 
             DropTiles();
