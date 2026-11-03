@@ -4,38 +4,51 @@ using UnityEngine;
 public class Propeller : MonoBehaviour
 {
     
-    
-
+    public List<Vector2Int> targets;
+    public int xPos;
+    public int yPos;
 
    public List<Vector2Int> GetTargets(Board board)
    {
-        List<Vector2Int> pos = new List<Vector2Int>();
+        List<Vector2Int> targets = new List<Vector2Int>();
         Tile tile = GetComponent<Tile>();
          
-        int xPos = tile.x;
-        int yPos = tile.y;
+        xPos = tile.x;
+        yPos = tile.y;
 
-        pos.Add(new Vector2Int(xPos,yPos));
+        targets.Add(new Vector2Int(xPos,yPos));
 
+        AddNeighbors(board , targets);
+        AddRandomColorTiles(board, targets);
+
+        return targets;
+   }
+
+
+   void AddNeighbors(Board board , List<Vector2Int> targets)
+   {
         if(xPos + 1 < board.width)
         {
-            pos.Add(new Vector2Int(xPos + 1 , yPos));
+            targets.Add(new Vector2Int(xPos + 1 , yPos));
         }
         if(xPos - 1 >= 0)
         {
-            pos.Add(new Vector2Int(xPos - 1 , yPos));
+            targets.Add(new Vector2Int(xPos - 1 , yPos));
         }
         if(yPos + 1 < board.height)
         {
-            pos.Add(new Vector2Int(xPos, yPos + 1));
+            targets.Add(new Vector2Int(xPos, yPos + 1));
         }
         if(yPos - 1 >= 0)
         {
-            pos.Add(new Vector2Int(xPos, yPos - 1));
+            targets.Add(new Vector2Int(xPos, yPos - 1));
         }
 
-        
+   }
 
+
+   void AddRandomColorTiles(Board board , List<Vector2Int> targets)
+   {
         TileColors color = (TileColors)Random.Range(0,5);
         List<Vector2Int> candidates = new List<Vector2Int>();
 
@@ -45,7 +58,7 @@ public class Propeller : MonoBehaviour
             {
                 Vector2Int cell = new Vector2Int(x,y);
 
-                if(board.GetColorAt(x,y) == color && !pos.Contains(cell))
+                if(board.GetColorAt(x,y) == color && !targets.Contains(cell))
                 {
                     candidates.Add(cell);
                 }
@@ -57,10 +70,8 @@ public class Propeller : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             int index = Random.Range(0, candidates.Count);
-            pos.Add(candidates[index]);
+            targets.Add(candidates[index]);
             candidates.RemoveAt(index);
         }
-
-        return pos;
    }
 }

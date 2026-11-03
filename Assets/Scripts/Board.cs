@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 public class Board : MonoBehaviour
 {
     public int width = 8;
@@ -61,10 +62,20 @@ public class Board : MonoBehaviour
                 {
                     StartCoroutine(TrySwap(delta));
                 }
+                else
+                {
+                    Propeller propeller = selectedTile.GetComponent<Propeller>();
+                    
+                    if(propeller != null)
+                    {
+                        StartCoroutine(ActivatePropeller(propeller));
+                    }
+                    //Activate Propeller ability
+                }
                 selectedTile = null;
             }
 
-            //propeller icin dokununca skill ini gosterme mekanigi.
+            
         }
         
     }
@@ -410,5 +421,30 @@ public class Board : MonoBehaviour
     public TileColors GetColorAt(int x , int y)
     {
         return grid[x,y];
+    }
+
+
+    IEnumerator ActivatePropeller(Propeller propeller)
+    {
+        isAnimating = true;
+        List<Vector2Int> targets = propeller.GetTargets(this);
+
+        HashSet<Tile> tileObjects = new HashSet<Tile>();
+        foreach(Vector2Int pos in targets)
+        {
+           if(tiles[pos.x , pos.y] != null) 
+           {
+                tileObjects.Add(tiles[pos.x , pos.y]);
+               
+                
+           }
+        }
+        DestroyMatches(tileObjects);
+        DropTiles();
+        yield return new WaitForSeconds(dropDuration);
+        FillBoard();
+        yield return new WaitForSeconds(dropDuration);
+        isAnimating = false;
+        
     }
 }
