@@ -241,25 +241,8 @@ public class Board : MonoBehaviour
             yield break;
         }
         
-        while (matchedTiles.Count > 0)
-        {
-            DestroyMatches(matchedTiles);
-            foreach(Vector2Int pos in propellerPositions)
-            {
-                SpawnPropeller(pos.x , pos.y);
-            }
-            IncreasePoints(matchedTiles.Count);
-            gameManager.UpdatePoints();
-            gameManager.MakeMove();
-
-
-            DropTiles();
-            yield return new WaitForSeconds(dropDuration);
-            FillBoard();
-            yield return new WaitForSeconds(dropDuration);
-
-            matchedTiles = FindMatches();
-        }
+        gameManager.MakeMove();
+        yield return StartCoroutine(ResolveMatches());
         gameManager.GameOver();
         isAnimating = false;
     }
@@ -434,17 +417,47 @@ public class Board : MonoBehaviour
         {
            if(tiles[pos.x , pos.y] != null) 
            {
-                tileObjects.Add(tiles[pos.x , pos.y]);
-               
-                
+                tileObjects.Add(tiles[pos.x , pos.y]);  
            }
         }
+    
         DestroyMatches(tileObjects);
+        IncreasePoints(tileObjects.Count);
+        gameManager.UpdatePoints();
         DropTiles();
         yield return new WaitForSeconds(dropDuration);
         FillBoard();
         yield return new WaitForSeconds(dropDuration);
+
+        yield return StartCoroutine(ResolveMatches());
         isAnimating = false;
+
+    }
+
+    IEnumerator ResolveMatches()
+    {
+        matchedTiles = FindMatches();
+
+        while(matchedTiles.Count > 0)
+        {
+            DestroyMatches(matchedTiles);
+            foreach(Vector2Int pos in propellerPositions)
+            {
+                SpawnPropeller(pos.x , pos.y);
+            }
+            IncreasePoints(matchedTiles.Count);
+            gameManager.UpdatePoints();
+
+            DropTiles();
+            yield return new WaitForSeconds(dropDuration);
+            FillBoard();
+            yield return new WaitForSeconds(dropDuration);
+            
+            matchedTiles = FindMatches();
+        }
+        
+
+        
         
     }
 }
