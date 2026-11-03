@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using Unity.VisualScripting;
 public class Board : MonoBehaviour
 {
     public int width = 8;
@@ -14,6 +13,8 @@ public class Board : MonoBehaviour
     HashSet<Tile> matchedTiles; // eslesen taslari bulabilmek icin.
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
+
+    public Sprite[] sprites;
     List<Vector2Int> propellerPositions;
     public GameManager gameManager;
     public GameObject tilePrefab;
@@ -179,18 +180,17 @@ public class Board : MonoBehaviour
         tile.x = x;
         tile.y = y;
         tiles[x,y] = tile;
-        Color color = GetColor(grid[x,y]);
-        tileObject.GetComponent<SpriteRenderer>().color = color;
+        tileObject.GetComponent<SpriteRenderer>().sprite = GetSprite(grid[x,y]);
     }
-    public static Color GetColor(TileColors tileColor)
+    public Sprite GetSprite(TileColors tileColor)
     {
-        if (tileColor == TileColors.Red) return Color.red;
-        if (tileColor == TileColors.Blue) return Color.blue;
-        if (tileColor == TileColors.Green) return Color.green;
-        if (tileColor == TileColors.Yellow) return Color.yellow;
-        if (tileColor == TileColors.Purple) return Color.purple;
+        if (tileColor == TileColors.Red) return sprites[0];
+        if (tileColor == TileColors.Blue) return sprites[1];
+        if (tileColor == TileColors.Green) return sprites[2];
+        if (tileColor == TileColors.Yellow) return sprites[3];
+        if (tileColor == TileColors.Purple) return sprites[4];
 
-        return Color.white;
+        return null;
     }
     IEnumerator TrySwap(Vector2 delta)
     {
@@ -352,8 +352,6 @@ public class Board : MonoBehaviour
                         tile.y = emptyY;
 
                         tile.MoveTo(new Vector2(x, emptyY), dropDuration , 0);
-
-
                     }
                     emptyY++;
                 }
@@ -435,6 +433,7 @@ public class Board : MonoBehaviour
     }
 
     IEnumerator ResolveMatches()
+    //finds every match on the board and makes them pop untill there is no more matches.
     {
         matchedTiles = FindMatches();
 
@@ -454,10 +453,7 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(dropDuration);
             
             matchedTiles = FindMatches();
-        }
-        
-
-        
-        
+            //In order to restart the loop this was added.
+        } 
     }
 }
