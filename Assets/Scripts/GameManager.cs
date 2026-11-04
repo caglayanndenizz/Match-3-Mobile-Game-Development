@@ -65,5 +65,6 @@ public class GameManager : MonoBehaviour
     {
         pointsText.text = currentPoint.ToString();
     }
+    //points system needs an upgrade.
 
 }
