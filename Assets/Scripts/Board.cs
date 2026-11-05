@@ -353,6 +353,10 @@ public class Board : MonoBehaviour
                     //1x4 vertical match
                     verticalRocketPositions.Add(new Vector2Int(x,y));
                 }
+
+
+                // L and T matches will be added to the method.
+                // the overlaping tile should be ignored after it was counted.
                 
             }
         }
