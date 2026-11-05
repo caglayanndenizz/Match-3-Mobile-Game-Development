@@ -16,9 +16,13 @@ public class Board : MonoBehaviour
 
     public Sprite[] sprites;
     List<Vector2Int> propellerPositions;
+    List<Vector2Int> horizontalRocketPositions;
+    List<Vector2Int> verticalRocketPositions;
     public GameManager gameManager;
     public GameObject tilePrefab;
     public GameObject propellerPrefab;
+    public GameObject horizontalRocketPrefab;
+    public GameObject verticalRocketPrefab;
     public float dropDuration = 0.3f;
     public float swapDuration = 0.2f;
     public float rowDelay = 0.05f;
@@ -66,12 +70,23 @@ public class Board : MonoBehaviour
                 else
                 {
                     Propeller propeller = selectedTile.GetComponent<Propeller>();
+                    HorizontalRocket horizontalRocket = selectedTile.GetComponent<HorizontalRocket>();
+                    VerticalRocket verticalRocket = selectedTile.GetComponent<VerticalRocket>();
                     
                     if(propeller != null)
                     {
-                        StartCoroutine(ActivatePropeller(propeller));
+                        StartCoroutine(ActivateBooster(propeller.GetTargets(this)));
+                        //Activate Propeller ability
                     }
-                    //Activate Propeller ability
+                    else if(verticalRocket != null)
+                    {
+                        StartCoroutine(ActivateBooster(verticalRocket.GetTargets(this)));
+                    }
+                    else if(horizontalRocket != null)
+                    {
+                        StartCoroutine(ActivateBooster(horizontalRocket.GetTargets(this)));
+                    }
+                    
                 }
                 selectedTile = null;
             }
@@ -279,6 +294,8 @@ public class Board : MonoBehaviour
     {
         matchedTiles = new HashSet<Tile>();
         propellerPositions = new List<Vector2Int>();
+        horizontalRocketPositions = new List<Vector2Int>();
+        verticalRocketPositions = new List<Vector2Int>();
 
         for (int x = 0; x < width; x++)
         {
@@ -297,13 +314,14 @@ public class Board : MonoBehaviour
                     matchedTiles.Add(tiles[x + 1, y + 1]);
 
                     propellerPositions.Add(new Vector2Int(x,y));
+                    //2x2 match
                 }
                 if (x + 2 < width && grid[x + 1, y] == color && grid[x + 2, y] == color)
                 {
                     matchedTiles.Add(tiles[x, y]);
                     matchedTiles.Add(tiles[x + 1, y]);
                     matchedTiles.Add(tiles[x + 2, y]);
-
+                    //1x3 horizontal match
                 }
 
                 if (y + 2 < height && grid[x, y + 1] == color && grid[x, y + 2] == color)
@@ -311,8 +329,31 @@ public class Board : MonoBehaviour
                     matchedTiles.Add(tiles[x, y]);
                     matchedTiles.Add(tiles[x, y + 1]);
                     matchedTiles.Add(tiles[x, y + 2]);
-
+                    //1x3 vertical match
                 }
+
+                if(x + 3 < width && grid[x + 1, y] == color && grid[x + 2, y] == color && grid[x + 3 , y] == color)
+                {
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x + 1, y]);
+                    matchedTiles.Add(tiles[x + 2, y]);
+                    matchedTiles.Add(tiles[x + 3 , y]);
+
+                    //1x4 horizontal match
+
+                    horizontalRocketPositions.Add(new Vector2Int(x,y));
+                }
+                
+                if (y + 3 < height && grid[x, y + 1] == color && grid[x, y + 2] == color && grid[x, y + 3 ] == color)
+                {
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x, y + 1]);
+                    matchedTiles.Add(tiles[x, y + 2]);
+                    matchedTiles.Add(tiles[x , y + 3]);
+                    //1x4 vertical match
+                    verticalRocketPositions.Add(new Vector2Int(x,y));
+                }
+                
             }
         }
         
@@ -399,17 +440,36 @@ public class Board : MonoBehaviour
         grid[x,y] = TileColors.None;
     }
 
+    void SpawnHorizontalRocket(int x , int y)
+    {
+        Vector2 pos = new Vector2(x,y);
+        GameObject horizontalRocketObject = Instantiate(horizontalRocketPrefab , pos , Quaternion.identity);
+        Tile horizontalRocket = horizontalRocketObject.GetComponent<Tile>();
+        horizontalRocket.x = x;
+        horizontalRocket.y = y;
+        tiles[x,y] = horizontalRocket;
+        grid[x,y] = TileColors.None;
+    }
+
+    void SpawnVerticalRocket(int x , int y)
+    {
+        Vector2 pos = new Vector2(x,y);
+        GameObject verticalRocketObject = Instantiate(verticalRocketPrefab , pos , Quaternion.identity);
+        Tile verticalRocket = verticalRocketObject.GetComponent<Tile>();
+        verticalRocket.x = x;
+        verticalRocket.y = y;
+        tiles[x,y] = verticalRocket;
+        grid[x,y] = TileColors.None;
+    }
+
     public TileColors GetColorAt(int x , int y)
     {
         return grid[x,y];
     }
 
-
-    IEnumerator ActivatePropeller(Propeller propeller)
+    IEnumerator ActivateBooster(List<Vector2Int> targets)
     {
         isAnimating = true;
-        List<Vector2Int> targets = propeller.GetTargets(this);
-
         HashSet<Tile> tileObjects = new HashSet<Tile>();
         foreach(Vector2Int pos in targets)
         {
@@ -433,7 +493,7 @@ public class Board : MonoBehaviour
     }
 
     IEnumerator ResolveMatches()
-    //finds every match on the board and makes them pop untill there is no more matches.
+    //finds every match on the board and makes them pop untill there are no more matches.
     {
         matchedTiles = FindMatches();
 
@@ -443,6 +503,14 @@ public class Board : MonoBehaviour
             foreach(Vector2Int pos in propellerPositions)
             {
                 SpawnPropeller(pos.x , pos.y);
+            }
+            foreach(Vector2Int pos in horizontalRocketPositions)
+            {
+                SpawnHorizontalRocket(pos.x , pos.y);
+            }
+            foreach(Vector2Int pos in verticalRocketPositions)
+            {
+                SpawnVerticalRocket(pos.x , pos.y);
             }
             IncreasePoints(matchedTiles.Count);
             gameManager.UpdatePoints();
