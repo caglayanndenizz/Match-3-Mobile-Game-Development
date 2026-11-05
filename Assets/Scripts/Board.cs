@@ -355,7 +355,7 @@ public class Board : MonoBehaviour
                 }
 
 
-                // L and T matches will be added to the method.
+                // L , T , 1x5+ matches will be added to the method.
                 // the overlaping tile should be ignored after it was counted.
                 
             }
