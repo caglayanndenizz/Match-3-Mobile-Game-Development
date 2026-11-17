@@ -435,6 +435,8 @@ public class Board : MonoBehaviour
 
     void SpawnPropeller(int x , int y)
     {
+        if(tiles[x,y] != null) return;
+        
         Vector2 pos = new Vector2(x,y);
         GameObject propellerObject = Instantiate(propellerPrefab , pos , Quaternion.identity);
         Tile propeller = propellerObject.GetComponent<Tile>();
@@ -446,8 +448,10 @@ public class Board : MonoBehaviour
 
     void SpawnHorizontalRocket(int x , int y)
     {
+        if(tiles[x,y] != null) return;
+
         Vector2 pos = new Vector2(x,y);
-        GameObject horizontalRocketObject = Instantiate(horizontalRocketPrefab , pos , Quaternion.identity);
+        GameObject horizontalRocketObject = Instantiate(horizontalRocketPrefab , pos , horizontalRocketPrefab.transform.rotation);
         Tile horizontalRocket = horizontalRocketObject.GetComponent<Tile>();
         horizontalRocket.x = x;
         horizontalRocket.y = y;
@@ -457,8 +461,10 @@ public class Board : MonoBehaviour
 
     void SpawnVerticalRocket(int x , int y)
     {
+        if(tiles[x,y] != null) return;
+
         Vector2 pos = new Vector2(x,y);
-        GameObject verticalRocketObject = Instantiate(verticalRocketPrefab , pos , Quaternion.identity);
+        GameObject verticalRocketObject = Instantiate(verticalRocketPrefab , pos , verticalRocketPrefab.transform.rotation);
         Tile verticalRocket = verticalRocketObject.GetComponent<Tile>();
         verticalRocket.x = x;
         verticalRocket.y = y;
