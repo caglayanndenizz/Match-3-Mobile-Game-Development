@@ -325,12 +325,11 @@ public class Board : MonoBehaviour
             {
                 TileColors color = grid[x, y];
 
-                
-                
                 if (color == TileColors.None)
                 {
                     continue;
                 }
+
                 if (x + 1 < width && y + 1 < height && grid[x + 1, y] == color && grid[x, y + 1] == color && grid[x + 1, y + 1] == color)
                 {
                     
@@ -439,8 +438,8 @@ public class Board : MonoBehaviour
                 }
 
 
-                // L , T , 1x5+ matches will be added to the method.
-                // the overlaping tile should be ignored after it was counted.
+                // L , T matches will be added to the method.
+                // the overlaping tile should count one time.
                 
             }
         }
