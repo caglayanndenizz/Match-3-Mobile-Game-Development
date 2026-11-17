@@ -528,7 +528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120b3bb2e255d49b2a1aa5ff2c5983ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  maxMoveCount: 3
+  maxMoveCount: 123123
   remainingMoveCount: 0
   targetPoint: 1231231231
   currentPoint: 0
