@@ -342,6 +342,7 @@ MonoBehaviour:
   propellerPrefab: {fileID: 7944277277881542365, guid: b617aabdfefa3204795ca4e6796414a5, type: 3}
   horizontalRocketPrefab: {fileID: 6210015721175116391, guid: 6af462b2044f5d140af1c838e9dffb84, type: 3}
   verticalRocketPrefab: {fileID: 7849421301248038108, guid: f84d856811f14b04898c715a6102e8e5, type: 3}
+  bombPrefab: {fileID: 4920180391894298488, guid: 6d1eba8fff7c4482e9bdb7d4271a097e, type: 3}
   dropDuration: 0.3
   swapDuration: 0.2
   rowDelay: 0.05
@@ -527,7 +528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120b3bb2e255d49b2a1aa5ff2c5983ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  maxMoveCount: 2147483647
+  maxMoveCount: 3
   remainingMoveCount: 0
   targetPoint: 1231231231
   currentPoint: 0

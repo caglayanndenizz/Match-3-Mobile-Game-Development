@@ -14,15 +14,21 @@ public class Board : MonoBehaviour
     // hashset olmasinin sebebi ustune bir kez daha yazilmak istenmemesiydi. Yani bir kere kontrol edilecek.
     // Liste olsaydi ustune binebilir ve match i iki katina cikarilabilirdi. 
 
+    static readonly Vector2Int NoSwap = new Vector2Int(-1 , -1);
+    Vector2Int swapPosA = NoSwap;
+    Vector2Int swapPosB = NoSwap;
+
     public Sprite[] sprites;
     List<Vector2Int> propellerPositions;
     List<Vector2Int> horizontalRocketPositions;
     List<Vector2Int> verticalRocketPositions;
+    List<Vector2Int> bombPositions;
     public GameManager gameManager;
     public GameObject tilePrefab;
     public GameObject propellerPrefab;
     public GameObject horizontalRocketPrefab;
     public GameObject verticalRocketPrefab;
+    public GameObject bombPrefab;
     public float dropDuration = 0.3f;
     public float swapDuration = 0.2f;
     public float rowDelay = 0.05f;
@@ -72,19 +78,29 @@ public class Board : MonoBehaviour
                     Propeller propeller = selectedTile.GetComponent<Propeller>();
                     HorizontalRocket horizontalRocket = selectedTile.GetComponent<HorizontalRocket>();
                     VerticalRocket verticalRocket = selectedTile.GetComponent<VerticalRocket>();
+                    Bomb bomb = selectedTile.GetComponent<Bomb>();
                     
                     if(propeller != null)
                     {
                         StartCoroutine(ActivateBooster(propeller.GetTargets(this)));
+                        gameManager.MakeMove();
                         //Activate Propeller ability
                     }
                     else if(verticalRocket != null)
                     {
                         StartCoroutine(ActivateBooster(verticalRocket.GetTargets(this)));
+                        gameManager.MakeMove();
+                        
                     }
                     else if(horizontalRocket != null)
                     {
                         StartCoroutine(ActivateBooster(horizontalRocket.GetTargets(this)));
+                        gameManager.MakeMove();
+                    }
+                    else if(bomb != null)
+                    {
+                        StartCoroutine(ActivateBooster(bomb.GetTargets(this)));
+                        gameManager.MakeMove();
                     }
                     
                 }
@@ -243,6 +259,9 @@ public class Board : MonoBehaviour
 
         int startX = selectedTile.x;
         int startY = selectedTile.y;
+        swapPosA = new Vector2Int(startX , startY);
+        swapPosB = new Vector2Int(targetX , targetY);
+
         isAnimating = true;
 
         yield return StartCoroutine(SwapTiles(startX, startY, targetX, targetY));
@@ -252,6 +271,8 @@ public class Board : MonoBehaviour
         if(matchedTiles.Count == 0)
         {
             yield return StartCoroutine(SwapTiles(startX, startY, targetX, targetY));
+            swapPosA = NoSwap;
+            swapPosB = NoSwap;
             isAnimating = false;
             yield break;
         }
@@ -296,24 +317,42 @@ public class Board : MonoBehaviour
         propellerPositions = new List<Vector2Int>();
         horizontalRocketPositions = new List<Vector2Int>();
         verticalRocketPositions = new List<Vector2Int>();
+        bombPositions = new List<Vector2Int>();
 
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 TileColors color = grid[x, y];
+
+                
+                
                 if (color == TileColors.None)
                 {
                     continue;
                 }
                 if (x + 1 < width && y + 1 < height && grid[x + 1, y] == color && grid[x, y + 1] == color && grid[x + 1, y + 1] == color)
                 {
+                    
                     matchedTiles.Add(tiles[x, y]);
                     matchedTiles.Add(tiles[x + 1, y]);
                     matchedTiles.Add(tiles[x, y + 1]);
                     matchedTiles.Add(tiles[x + 1, y + 1]);
 
-                    propellerPositions.Add(new Vector2Int(x,y));
+
+                    Vector2Int spawnPos = new Vector2Int(x,y);
+                    for(int i = 0; i < 2; i++)
+                    {
+                        for(int j = 0; j < 2; j++)
+                        {
+                            Vector2Int cell = new Vector2Int(x + i, y + j);
+                            if(cell == swapPosA || cell == swapPosB)
+                            {
+                                spawnPos = cell;
+                            }
+                        }
+                    }
+                    propellerPositions.Add(spawnPos);
                     //2x2 match
                 }
                 if (x + 2 < width && grid[x + 1, y] == color && grid[x + 2, y] == color)
@@ -332,16 +371,51 @@ public class Board : MonoBehaviour
                     //1x3 vertical match
                 }
 
-                if(x + 3 < width && grid[x + 1, y] == color && grid[x + 2, y] == color && grid[x + 3 , y] == color)
+                if(x + 3 < width && grid[x + 1, y] == color && grid[x + 2, y] == color && grid[x + 3 , y] == color
+                && (x - 1 < 0 || grid[x - 1, y] != color)
+                && (x + 4 >= width || grid[x + 4, y] != color))
                 {
                     matchedTiles.Add(tiles[x, y]);
                     matchedTiles.Add(tiles[x + 1, y]);
                     matchedTiles.Add(tiles[x + 2, y]);
                     matchedTiles.Add(tiles[x + 3 , y]);
 
+                    Vector2Int spawnPosX = new Vector2Int(x,y);
+                    for(int i = 0; i < 4; i++)
+                    {
+                        Vector2Int cell = new Vector2Int(x + i,y);
+                        if(cell == swapPosA || cell == swapPosB)
+                        {
+                            spawnPosX = cell;
+                        }
+                    }
+
                     //1x4 horizontal match
 
-                    horizontalRocketPositions.Add(new Vector2Int(x,y));
+                    horizontalRocketPositions.Add(spawnPosX);
+                }
+
+                if(x + 4 < width && grid[x + 1, y] == color && grid[x + 2, y] == color && grid[x + 3 , y] == color && grid[x + 4 , y] == color)
+                {
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x + 1, y]);
+                    matchedTiles.Add(tiles[x + 2, y]);
+                    matchedTiles.Add(tiles[x + 3 , y]);
+                    matchedTiles.Add(tiles[x + 4 , y]);
+
+
+                    Vector2Int spawnPos = new Vector2Int(x,y);
+                    for(int i = 0; i <= 4; i++)
+                    {
+                        Vector2Int cell = new Vector2Int(x + i,y);
+                        if(cell == swapPosA || cell == swapPosB)
+                        {
+                            spawnPos = cell;
+                        }  
+                    }
+
+                    bombPositions.Add(spawnPos);
+
                 }
                 
                 if (y + 3 < height && grid[x, y + 1] == color && grid[x, y + 2] == color && grid[x, y + 3 ] == color)
@@ -351,7 +425,17 @@ public class Board : MonoBehaviour
                     matchedTiles.Add(tiles[x, y + 2]);
                     matchedTiles.Add(tiles[x , y + 3]);
                     //1x4 vertical match
-                    verticalRocketPositions.Add(new Vector2Int(x,y));
+
+                    Vector2Int spawnPosY = new Vector2Int(x,y);
+                    for(int i = 0; i < 4; i++)
+                    {
+                        Vector2Int cell = new Vector2Int(x ,y + i);
+                        if(cell == swapPosA || cell == swapPosB)
+                        {
+                            spawnPosY = cell;
+                        }
+                    }
+                    verticalRocketPositions.Add(spawnPosY);
                 }
 
 
@@ -436,13 +520,26 @@ public class Board : MonoBehaviour
     void SpawnPropeller(int x , int y)
     {
         if(tiles[x,y] != null) return;
-        
+
         Vector2 pos = new Vector2(x,y);
         GameObject propellerObject = Instantiate(propellerPrefab , pos , Quaternion.identity);
         Tile propeller = propellerObject.GetComponent<Tile>();
         propeller.x = x;
         propeller.y = y;
         tiles[x,y] = propeller;
+        grid[x,y] = TileColors.None;
+    }
+
+    void SpawnBomb(int x , int y)
+    {
+        if(tiles[x,y] != null) return;
+
+        Vector2 pos = new Vector2(x,y);
+        GameObject bombObject = Instantiate(bombPrefab , pos , Quaternion.identity);
+        Tile bomb = bombObject.GetComponent<Tile>();
+        bomb.x = x;
+        bomb.y = y;
+        tiles[x,y] = bomb;
         grid[x,y] = TileColors.None;
     }
 
@@ -510,18 +607,26 @@ public class Board : MonoBehaviour
         while(matchedTiles.Count > 0)
         {
             DestroyMatches(matchedTiles);
-            foreach(Vector2Int pos in propellerPositions)
+            foreach(Vector2Int pos in bombPositions)
             {
-                SpawnPropeller(pos.x , pos.y);
-            }
-            foreach(Vector2Int pos in horizontalRocketPositions)
-            {
-                SpawnHorizontalRocket(pos.x , pos.y);
+                SpawnBomb(pos.x , pos.y);
             }
             foreach(Vector2Int pos in verticalRocketPositions)
             {
                 SpawnVerticalRocket(pos.x , pos.y);
             }
+            foreach(Vector2Int pos in horizontalRocketPositions)
+            {
+                SpawnHorizontalRocket(pos.x , pos.y);
+            }
+            foreach(Vector2Int pos in propellerPositions)
+            {
+                SpawnPropeller(pos.x , pos.y);
+            }
+
+            swapPosA = NoSwap;
+            swapPosB = NoSwap;
+
             IncreasePoints(matchedTiles.Count);
             gameManager.UpdatePoints();
 
